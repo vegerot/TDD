@@ -41,7 +41,7 @@ class Dollar(var amount: Int) {
   override def equals(that: Any): Boolean = that match {
     case that: Dollar => this.amount == that.amount
     // am I getting too far ahead of myself?  There's no tests for this!
-    case that /*: Pounds*/ => ???
+    case that /*: Pounds*/ => ??? // TODO
     case _                 => false
   }
 }
