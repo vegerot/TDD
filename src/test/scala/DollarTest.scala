@@ -33,8 +33,29 @@ class Dollar(private val amount: Int) {
   override def equals(that: Any): Boolean = that match {
     case that: Dollar => this.amount == that.amount
     // am I getting too far ahead of myself?  There's no tests for this!
-    case that: Pounds => ??? // TODO
-    case _            => false
+    case that: Franc => ??? // TODO
+    case _           => false
   }
 }
-class Pounds() {}
+
+class FrancTest extends AnyFlatSpec with should.Matchers {
+  "Franc" should "multiply with scalars" in {
+    val five = Franc(5)
+    Franc(10) shouldEqual five * 2
+    five * 3 shouldEqual Franc(15)
+  }
+
+  it should "testEquality" in {
+    Franc(5) shouldEqual Franc(5)
+    Franc(6) shouldNot equal(Franc(5))
+  }
+}
+
+class Franc(private val amount: Int) {
+  def *(multiplier: Int): Franc = Franc(amount * multiplier)
+
+  override def equals(that: Any) = that match {
+    case that: Franc => this.amount == that.amount
+    case _           => false
+  }
+}
