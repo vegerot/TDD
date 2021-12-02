@@ -51,15 +51,18 @@ class Test extends AnyFlatSpec with should.Matchers {
     Dollar(6) shouldNot equal(Dollar(5))
     Franc(5) shouldEqual Franc(5)
     Franc(6) shouldNot equal(Franc(5))
+    // May not be true
+    Franc(5) shouldNot equal(Dollar(5))
+    Franc(0) shouldNot equal(Dollar(1))
   }
 
 }
-class Money(protected val amount: Int) { // more like Currency amirite?
+
+abstract class Money(protected val amount: Int) { // more like Currency amirite?
   override def equals(that: Any): Boolean = that match {
-    case that: Money => this.amount == that.amount
-    // am I getting too far ahead of myself?  There's no tests for this!
-    case that: Franc => ??? // TODO
-    case _           => false
+    case that: Money =>
+      this.amount == that.amount && this.getClass() == that.getClass()
+    case _ => false
   }
 
 }
