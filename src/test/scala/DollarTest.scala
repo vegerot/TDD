@@ -40,12 +40,16 @@ class Test extends AnyFlatSpec with should.Matchers {
     Money.franc(0) shouldNot equal(Money.dollar(1))
   }
 
+  /*
   it should "have currency" in {
     "USD" shouldEqual Money.dollar
+
   }
+   */
 
   it should "make a unit amount by default" in {
-    Money
+    Money.dollar() shouldEqual Money.dollar(1)
+    Money.franc() shouldEqual Money.franc(1)
   }
 
 }
@@ -61,8 +65,8 @@ abstract class Money(protected val amount: Int) { // more like Currency amirite?
 }
 
 object Money {
-  def dollar(amount: Int) = new Dollar(amount)
-  def franc(amount: Int) = new Franc(amount)
+  def dollar(amount: Int = 1) = new Dollar(amount)
+  def franc(amount: Int = 1) = new Franc(amount)
 }
 
 class Dollar(override val amount: Int) extends Money(amount) {
