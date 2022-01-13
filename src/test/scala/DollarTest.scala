@@ -4,56 +4,48 @@ import org.scalatest.matchers._
 
 class DollarTest extends AnyFlatSpec with should.Matchers {
   "Dollar" should "multiply with scalars" in {
-    val five = Dollar(5)
-    Dollar(10) shouldEqual five * 2
-    five * 3 shouldEqual Dollar(15)
+    val five: Money = Money.dollar(5)
+    Money.dollar(10) shouldEqual five * 2
+    five * 3 shouldEqual Money.dollar(15)
   }
 
   it should "testEquality" in {
-    Dollar(5) shouldEqual Dollar(5)
-    Dollar(6) shouldNot equal(Dollar(5))
+    Money.dollar(5) shouldEqual Money.dollar(5)
+    Money.dollar(6) shouldNot equal(Money.dollar(5))
   }
 
-  // me
-//  it should "test equality with other currency" in {
-//    Dollar(5) shouldEqual Franc(???)
-//    Dollar(6) shouldNot equal(Franc(???))
-//  }
-
-  // @me
-  "Dollars" should "be equal" in {
-    val firstTwo = Dollar(2)
-    val secondTwo = Dollar(2)
-
-    firstTwo shouldEqual secondTwo
-
-    val three = Dollar(3)
-    firstTwo shouldNot equal(three)
-  }
 }
 
 class FrancTest extends AnyFlatSpec with should.Matchers {
   "Franc" should "multiply with scalars" in {
-    val five = Franc(5)
-    Franc(10) shouldEqual five * 2
-    five * 3 shouldEqual Franc(15)
+    val five = Money.franc(5)
+    Money.franc(10) shouldEqual five * 2
+    five * 3 shouldEqual Money.franc(15)
   }
 
   it should "testEquality" in {
-    Franc(5) shouldEqual Franc(5)
-    Franc(6) shouldNot equal(Franc(5))
+    Money.franc(5) shouldEqual Money.franc(5)
+    Money.franc(6) shouldNot equal(Money.franc(5))
   }
 }
 
 class Test extends AnyFlatSpec with should.Matchers {
   it should "testEquality" in {
-    Dollar(5) shouldEqual Dollar(5)
-    Dollar(6) shouldNot equal(Dollar(5))
-    Franc(5) shouldEqual Franc(5)
-    Franc(6) shouldNot equal(Franc(5))
+    Money.dollar(5) shouldEqual Money.dollar(5)
+    Money.dollar(6) shouldNot equal(Money.dollar(5))
+    Money.franc(5) shouldEqual Money.franc(5)
+    Money.franc(6) shouldNot equal(Money.franc(5))
     // May not be true
-    Franc(5) shouldNot equal(Dollar(5))
-    Franc(0) shouldNot equal(Dollar(1))
+    Money.franc(5) shouldNot equal(Money.dollar(5))
+    Money.franc(0) shouldNot equal(Money.dollar(1))
+  }
+
+  it should "have currency" in {
+    "USD" shouldEqual Money.dollar
+  }
+
+  it should "make a unit amount by default" in {
+    Money
   }
 
 }
@@ -64,15 +56,21 @@ abstract class Money(protected val amount: Int) { // more like Currency amirite?
       this.amount == that.amount && this.getClass() == that.getClass()
     case _ => false
   }
+  def *(mulitplier: Int): Money
 
+}
+
+object Money {
+  def dollar(amount: Int) = new Dollar(amount)
+  def franc(amount: Int) = new Franc(amount)
 }
 
 class Dollar(override val amount: Int) extends Money(amount) {
   def *(multiplier: Int): Dollar = {
-    Dollar(this.amount * multiplier)
+    Money.dollar(this.amount * multiplier)
   }
 }
 
 class Franc(override val amount: Int) extends Money(amount) {
-  def *(multiplier: Int): Franc = Franc(amount * multiplier)
+  def *(multiplier: Int): Franc = Money.franc(amount * multiplier)
 }
