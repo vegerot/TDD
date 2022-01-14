@@ -35,6 +35,10 @@ class Test extends AnyFlatSpec with should.Matchers {
     Money.dollar(6) shouldNot equal(Money.dollar(5))
     Money.franc(5) shouldEqual Money.franc(5)
     Money.franc(6) shouldNot equal(Money.franc(5))
+
+    Money.dollar(2) shouldEqual Money(2, "USD")
+    Money.franc(2) shouldEqual Money(2, "CHF")
+
     // May not be true
     Money.franc(5) shouldNot equal(Money.dollar(5))
     Money.franc(0) shouldNot equal(Money.dollar(1))
@@ -53,27 +57,22 @@ class Test extends AnyFlatSpec with should.Matchers {
 
 }
 
-abstract class Money(protected val amount: Int, val currency: String) { // more like Currency amirite?
+class Money(protected val amount: Int, val currency: String) { // more like Currency amirite?
   override def equals(that: Any): Boolean = that match {
     case that: Money =>
-      this.amount == that.amount && this.getClass() == that.getClass()
+      this.amount == that.amount && this.currency == that.currency
     case _ => false
   }
-  def *(mulitplier: Int): Money
+  def *(multiplier: Int): Money = Money(amount * multiplier, currency)
 
 }
 
 object Money {
+  def apply(amt: Int, currency: String) = new Money(amt, currency)
   def dollar(amount: Int = 1) = new Dollar(amount)
   def franc(amount: Int = 1) = new Franc(amount)
 }
 
-class Dollar(override val amount: Int) extends Money(amount, "USD") {
-  def *(multiplier: Int): Dollar = {
-    Money.dollar(this.amount * multiplier)
-  }
-}
+class Dollar(override val amount: Int) extends Money(amount, "USD") {}
 
-class Franc(override val amount: Int) extends Money(amount, "CHF") {
-  def *(multiplier: Int): Franc = Money.franc(amount * multiplier)
-}
+class Franc(override val amount: Int) extends Money(amount, "CHF") {}
