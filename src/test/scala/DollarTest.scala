@@ -35,18 +35,41 @@ class Test extends AnyFlatSpec with should.Matchers {
     val reduced: Money = bank.reduce(sum, "USD")
     Money.dollar(10) shouldEqual reduced
   }
+
+  "Money.+" should "return sum" in {
+    val five = Money.dollar(5)
+    val result: Expression = five + five
+    val sum: Sum = result.asInstanceOf[Sum]
+    five shouldEqual sum.augend
+    five shouldEqual sum.addend
+  }
+
+  "Bank" should "reduce Sum" in {
+    val sum = Sum(Money.dollar(3), Money.dollar(4))
+    val bank = Bank()
+    val result = bank.reduce(sum, "USD")
+    result shouldEqual Money.dollar(7)
+  }
+
+  "Bank" should "reduce Money" in {
+    val bank = Bank()
+    val result: Money = bank.reduce(Money.dollar(1), "USD")
+    result shouldEqual Money.dollar(1)
+  }
+
 }
 
-class Money(protected val amount: Int, val currency: String)
-    extends Expression { // more like Currency amirite?
+class Money(val amount: Int, val currency: String) extends Expression { // more like Currency amirite?
+  def *(multiplier: Int): Money = Money(amount * multiplier, currency)
+  def +(addend: Money): Expression =
+    Sum(this, addend)
+  override def reduce(to: String) = this
+  override def toString(): String = s"$amount $currency"
   override def equals(that: Any): Boolean = that match {
     case that: Money =>
       this.amount == that.amount && this.currency == that.currency
     case _ => false
   }
-  def *(multiplier: Int): Money = Money(amount * multiplier, currency)
-  def +(addend: Money): Expression =
-    Money(this.amount + addend.amount, currency)
 
 }
 
@@ -57,7 +80,17 @@ object Money {
 }
 
 class Bank {
-  def reduce(source: Expression, currency: String): Money = Money.dollar(10)
+  def reduce(source: Expression, to: String): Money = source.reduce(to)
+
 }
 
-trait Expression {}
+trait Expression {
+  def reduce(to: String): Money
+}
+
+class Sum(val augend: Money, val addend: Money) extends Expression {
+  override def reduce(to: String) = {
+    val amount = augend.amount + addend.amount
+    Money(amount, to)
+  }
+}
