@@ -28,15 +28,25 @@ class Test extends AnyFlatSpec with should.Matchers {
     Money.franc() shouldEqual Money.franc(1)
   }
 
+  it should "test addition" in {
+    val five = Money.dollar(5)
+    val sum: Expression = five + five
+    val bank: Bank = Bank()
+    val reduced: Money = bank.reduce(sum, "USD")
+    Money.dollar(10) shouldEqual reduced
+  }
 }
 
-class Money(protected val amount: Int, val currency: String) { // more like Currency amirite?
+class Money(protected val amount: Int, val currency: String)
+    extends Expression { // more like Currency amirite?
   override def equals(that: Any): Boolean = that match {
     case that: Money =>
       this.amount == that.amount && this.currency == that.currency
     case _ => false
   }
   def *(multiplier: Int): Money = Money(amount * multiplier, currency)
+  def +(addend: Money): Expression =
+    Money(this.amount + addend.amount, currency)
 
 }
 
@@ -45,3 +55,9 @@ object Money {
   def dollar(amount: Int = 1) = new Money(amount, "USD")
   def franc(amount: Int = 1) = Money(amount, "CHF")
 }
+
+class Bank {
+  def reduce(source: Expression, currency: String): Money = Money.dollar(10)
+}
+
+trait Expression {}
