@@ -57,14 +57,33 @@ class Test extends AnyFlatSpec with should.Matchers {
     result shouldEqual Money.dollar(1)
   }
 
+  "Bank" should "reduce Money in different currency" in {
+    val bank = Bank()
+    bank.setRate("CHF", "USD", 2)
+    val result: Money = bank.reduce(Money.franc(2), "USD")
+    result shouldEqual Money.dollar()
+  }
+
+  "Bank" should "reduce identity to 1" in {
+    Bank().rate("USD", "USD") shouldEqual Some(1)
+  }
+
 }
 
+// sue me
+import scala.collection.mutable.Map
 type AmountType = Int
+
 class Money(val amount: AmountType, val currency: String) extends Expression { // more like Currency amirite?
   def *(multiplier: AmountType): Money = Money(amount * multiplier, currency)
   def +(addend: Money): Expression =
     Sum(this, addend)
-  override def reduce(to: String) = this
+  override def reduce(bank: Bank, to: String) =
+    bank.rate(currency, to) match {
+      case Some(rate) => Money(amount / rate, to)
+      case None       => ???
+    }
+
   override def toString(): String = s"$amount $currency"
   override def equals(that: Any): Boolean = that match {
     case that: Money =>
@@ -80,17 +99,22 @@ object Money {
   def franc(amount: AmountType = 1) = Money(amount, "CHF")
 }
 
-class Bank {
-  def reduce(source: Expression, to: String): Money = source.reduce(to)
+class Bank() {
+  private val rates = Map[(String, String), AmountType]()
+  def reduce(source: Expression, to: String): Money = source.reduce(this, to)
+  def rate(from: String, to: String): Option[AmountType] =
+    if (from == to) Some(1) else rates get from -> to
+  def setRate(from: String, to: String, rate: AmountType) =
+    rates += ((from -> to) -> rate)
 
 }
 
 trait Expression {
-  def reduce(to: String): Money
+  def reduce(bank: Bank, to: String): Money
 }
 
 class Sum(val augend: Money, val addend: Money) extends Expression {
-  override def reduce(to: String) = {
+  override def reduce(bank: Bank, to: String) = {
     val amount = augend.amount + addend.amount
     Money(amount, to)
   }
