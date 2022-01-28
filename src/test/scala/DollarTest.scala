@@ -59,8 +59,9 @@ class Test extends AnyFlatSpec with should.Matchers {
 
 }
 
-class Money(val amount: Int, val currency: String) extends Expression { // more like Currency amirite?
-  def *(multiplier: Int): Money = Money(amount * multiplier, currency)
+type AmountType = Int
+class Money(val amount: AmountType, val currency: String) extends Expression { // more like Currency amirite?
+  def *(multiplier: AmountType): Money = Money(amount * multiplier, currency)
   def +(addend: Money): Expression =
     Sum(this, addend)
   override def reduce(to: String) = this
@@ -74,9 +75,9 @@ class Money(val amount: Int, val currency: String) extends Expression { // more 
 }
 
 object Money {
-  def apply(amt: Int, currency: String) = new Money(amt, currency)
-  def dollar(amount: Int = 1) = new Money(amount, "USD")
-  def franc(amount: Int = 1) = Money(amount, "CHF")
+  def apply(amt: AmountType, currency: String) = new Money(amt, currency)
+  def dollar(amount: AmountType = 1) = new Money(amount, "USD")
+  def franc(amount: AmountType = 1) = Money(amount, "CHF")
 }
 
 class Bank {
